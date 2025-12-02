@@ -272,18 +272,9 @@ GET /api/bowling/highscores
 ### Best Practices
 - ✅ Async/await for all database operations
 - ✅ Nullable reference types enabled
-- ✅ Input validation with data annotations
+- ✅ Input validation
 - ✅ Proper HTTP status codes
-- ✅ XML documentation comments
 - ✅ Centralized constants and error messages
-
-## 🧪 Testing
-
-Run tests (when implemented):
-
-```bash
-dotnet test
-```
 
 ## 📦 NuGet Packages
 
@@ -372,15 +363,3 @@ This API demonstrates professional .NET development practices:
 - Frame 3 Roll1: 7
 - **Frame 1 Score**: 10 + 10 + 7 = **27**
 - **Frame 2 Score**: 10 + 7 + (next roll)
-
-## ✅ Improvements Implemented
-
-This version includes several clean code improvements:
-
-1. **Constants File**: Centralized magic numbers and error messages
-2. **Validation Service**: Extracted validation logic to separate service
-3. **Data Annotations**: Input validation on DTOs
-4. **Code Organization**: Clear separation of concerns
-5. **Type Safety**: Proper use of nullable types
-6. **Documentation**: XML comments on public APIs
-
