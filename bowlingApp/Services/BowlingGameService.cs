@@ -37,34 +37,42 @@ namespace bowlingApp.Services
                 Roll3 = input.Roll3,
                 Score = (input.Roll1 ?? 0) + (input.Roll2 ?? 0) + (input.Roll3 ?? 0)
             };
-            var updatedFrames = CalculateAndUpdateScores([.. game.Frames, .. new[] { newFrame }], game.CurrentFrameNumber);
-            updatedFrames.RemoveAt(updatedFrames.Count - 1);
-            game = await _repository.AddFrameAsync(newFrame, updatedFrames);
-            if (game.CurrentFrameNumber == 10)
+            UpdatePreviousFrameScores(game.Frames, newFrame, game.CurrentFrameNumber);
+            game.Frames.Add(newFrame);
+            var updatedGame = await _repository.AddFrameAsync(game, newFrame);
+            if (updatedGame != null && updatedGame.CurrentFrameNumber == 10)
             {
-                game = await _repository.UpdateGameScoreAsync(game);
+                updatedGame = await _repository.UpdateGameScoreAsync(updatedGame);
             }
-            return new TurnResult(true, State: game);
+            return new TurnResult(true, State: updatedGame);
         }
         public async Task<List<HighScore>> GetHighScoresAsync()
         {
             return await _repository.GetTopHighScoresAsync();
         }
-        private static List<Frame> CalculateAndUpdateScores(List<Frame> frames, int currentFrameIndex)
+        private static void UpdatePreviousFrameScores(List<Frame> frames, Frame newFrame, int currentFrameIndex)
         {
-            var last2Frame = currentFrameIndex >= 2 ? frames[currentFrameIndex - 2] : null;
-            var lastFrame = currentFrameIndex >= 1 ? frames[currentFrameIndex - 1] : null;
-            var currentFrame = frames[currentFrameIndex];
+            if (newFrame.FrameIndex == 0) return;
+            var lastFrame = frames.LastOrDefault(f => f.FrameIndex == currentFrameIndex - 1);
+            var last2Frame = frames.LastOrDefault(f => f.FrameIndex == currentFrameIndex - 2);
+
             if (last2Frame != null && last2Frame.IsStrike && lastFrame.IsStrike)
-                last2Frame.Score = 10 + 10 + currentFrame.Roll1;
+            {
+                last2Frame.Score = 20 + newFrame.Roll1;
+            }
             
-            if (lastFrame != null && lastFrame.IsStrike)
-                lastFrame.Score = 10 + currentFrame.Roll1 + (currentFrame.Roll2 ?? 0);
-      
-            if (lastFrame != null && lastFrame.IsSpare)
-                lastFrame.Score = 10 + currentFrame.Roll1;
-        
-            return frames;
+            if (lastFrame != null)
+            {
+                if (lastFrame.IsStrike)
+                {
+                    lastFrame.Score = 10 + newFrame.Roll1 + (newFrame.Roll2 ?? 0);
+                }
+
+                if (lastFrame.IsSpare)
+                {
+                    lastFrame.Score = 10 + newFrame.Roll1;
+                }
+            }
         }
         private static string? BasicValidations(int frame, RollInput input)
         {

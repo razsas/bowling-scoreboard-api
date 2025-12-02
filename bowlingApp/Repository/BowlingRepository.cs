@@ -25,12 +25,14 @@ namespace bowlingApp.Repository
             return game;
         }
 
-        public async Task<Game?> AddFrameAsync(Frame frame, List<Frame> updatedScores)
+        public async Task<Game?> AddFrameAsync(Game game, Frame newFrame)
         {
-            await UpdateScore(updatedScores);
-            _context.Frames.Add(frame);
+            if (_context.Entry(newFrame).State == EntityState.Detached)
+            {
+                _context.Frames.Add(newFrame);
+            }
             await _context.SaveChangesAsync();
-            return await GetGameAsync(frame.GameId);
+            return await GetGameAsync(game.Id);
         }
 
         public async Task<List<HighScore>> GetTopHighScoresAsync(int limit = 5)
@@ -41,7 +43,7 @@ namespace bowlingApp.Repository
                 .ToListAsync();
         }
 
-        public async Task AddAndLimitHighScoresAsync(HighScore newScore, int limit = 5)
+        public async Task AddHighScoreAsync(HighScore newScore, int limit = 5)
         {
             _context.HighScores.Add(newScore);
             await _context.SaveChangesAsync();
@@ -59,28 +61,16 @@ namespace bowlingApp.Repository
             }
         }
 
-        private async Task UpdateScore(List<Frame> newFrames)
-        {
-            foreach (var frame in newFrames)
-            {
-                _context.Frames.Attach(frame);
-                _context.Entry(frame).Property(f => f.Score).IsModified = true;
-            }
-            await _context.SaveChangesAsync();
-        }
-
         public async Task<Game?> UpdateGameScoreAsync(Game game)
         {
             game.Score = game.Frames.Sum(f => f.Score);
-            _context.Games.Attach(game);
-            _context.Entry(game).Property(g => g.Score).IsModified = true;
             await _context.SaveChangesAsync();
             HighScore newHighScore = new()
             {
                 Score = game.Score,
                 Name = game.Name
             };
-            await AddAndLimitHighScoresAsync(newHighScore);
+            await AddHighScoreAsync(newHighScore);
             return await GetGameAsync(game.Id);
         }
     }
