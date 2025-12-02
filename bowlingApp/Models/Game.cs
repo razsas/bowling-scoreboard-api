@@ -1,3 +1,5 @@
+using bowlingApp.Constants;
+
 namespace bowlingApp.Models
 {
     public class Game(string name)
@@ -7,7 +9,6 @@ namespace bowlingApp.Models
         public List<Frame> Frames { get; set; } = [];
         public int Score { get; set; }
         public int CurrentFrameNumber => Frames.Count;
-        public bool IsGameOver => CurrentFrameNumber == 10;
+        public bool IsGameOver => CurrentFrameNumber == BowlingConstants.MaxFrames;
     }
-
 }

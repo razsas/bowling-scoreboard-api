@@ -36,6 +36,7 @@ namespace bowlingApp
 
             builder.Services.AddScoped<IBowlingRepository, BowlingRepository>();
             builder.Services.AddScoped<IBowlingGameService, BowlingGameService>();
+            builder.Services.AddScoped<IBowlingValidationService, BowlingValidationService>();
 
             var app = builder.Build();
 
