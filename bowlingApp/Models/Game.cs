@@ -1,14 +1,11 @@
-using bowlingApp.Constants;
-
 namespace bowlingApp.Models
 {
-    public class Game(string name)
+    public abstract class Game<TFrame> where TFrame : Frame
     {
         public int Id { get; set; }
-        public string Name { get; set; } = name;
-        public List<Frame> Frames { get; set; } = [];
+        public string Name { get; set; }
+        public virtual List<TFrame> Frames { get; set; } = [];
         public int Score { get; set; }
-        public int CurrentFrameNumber => Frames.Count;
-        public bool IsGameOver => CurrentFrameNumber == BowlingConstants.MaxFrames;
+        public abstract void UpdatePreviousFrameScores(Frame newFrame);
     }
 }

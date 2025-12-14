@@ -4,77 +4,45 @@ using bowlingApp.Constants;
 
 namespace bowlingApp.Services
 {
-    public class BowlingGameService(IBowlingRepository repository, IBowlingValidationService validationService) : IBowlingGameService
+    public class BowlingGameService(IGameRepository<BowlingGame, BowlingFrame> repository) : IGameService<BowlingGame, BowlingFrame>
     {
-        private readonly IBowlingRepository _repository = repository;
-        private readonly IBowlingValidationService _validationService = validationService;
-        public Task<Game?> GetGameAsync(int gameId)
+        private readonly IGameRepository<BowlingGame, BowlingFrame> _repository = repository;
+        public Task<BowlingGame?> GetGameAsync(int gameId)
         {
             return _repository.GetGameAsync(gameId);
         }
-        public async Task<Game> StartNewGameAsync(string name)
+        public async Task<BowlingGame> StartNewGameAsync(string name)
         {
-            var newGame = await _repository.CreateNewGameAsync(name);
-            return newGame;
-        }
-        public async Task<TurnResult> AddFrameAsync(RollInput input)
-        {
-            var game = await _repository.GetGameAsync(input.GameId);
-
-            if (game == null)
-                return new TurnResult(false, string.Format(BowlingConstants.ValidationMessages.GameNotFound, input.GameId));
-
-            if (game.IsGameOver)
-                return new TurnResult(false, BowlingConstants.ValidationMessages.GameAlreadyOver);
-
-            string? error = _validationService.ValidateRollInput(input, game.CurrentFrameNumber);
-            if (error != null) return new TurnResult(false, error);
-
-            var newFrame = new Frame
-            {
-                GameId = input.GameId,
-                FrameIndex = game.CurrentFrameNumber,
-                Roll1 = input.Roll1 ?? 0,
-                Roll2 = input.Roll2,
-                Roll3 = input.Roll3,
-                Score = (input.Roll1 ?? 0) + (input.Roll2 ?? 0) + (input.Roll3 ?? 0)
-            };
-            UpdatePreviousFrameScores(game.Frames, newFrame, game.CurrentFrameNumber);
-            game.Frames.Add(newFrame);
-            var updatedGame = await _repository.AddFrameAsync(game, newFrame);
-            if (updatedGame != null && updatedGame.CurrentFrameNumber == BowlingConstants.MaxFrames)
-            {
-                updatedGame = await _repository.UpdateGameScoreAsync(updatedGame);
-            }
-            return new TurnResult(true, State: updatedGame);
+            return await _repository.CreateNewGameAsync(name);
         }
         public async Task<List<HighScore>> GetHighScoresAsync()
         {
             return await _repository.GetTopHighScoresAsync();
         }
-        private static void UpdatePreviousFrameScores(List<Frame> frames, Frame newFrame, int currentFrameIndex)
+        public async Task<TurnResult<BowlingGame, BowlingFrame>> AddFrameAsync(RollInput input)
         {
-            if (newFrame.FrameIndex == 0) return;
-            var lastFrame = frames.LastOrDefault(f => f.FrameIndex == currentFrameIndex - 1);
-            var last2Frame = frames.LastOrDefault(f => f.FrameIndex == currentFrameIndex - 2);
+            var game = await _repository.GetGameAsync(input.GameId);
 
-            if (last2Frame != null && last2Frame.IsStrike && lastFrame.IsStrike)
+            if (game == null)
+                return new TurnResult<BowlingGame, BowlingFrame>(false, string.Format(BowlingConstants.ValidationMessages.GameNotFound, input.GameId));
+
+            if (game.IsGameOver)
+                return new TurnResult<BowlingGame, BowlingFrame>(false, BowlingConstants.ValidationMessages.GameAlreadyOver);
+
+            var newFrame = new BowlingFrame(input, game.CurrentFrameNumber);
+
+            string? error = newFrame.ValidateRollInput();
+            if (error != null) return new TurnResult<BowlingGame, BowlingFrame>(false, error);
+
+            game.UpdatePreviousFrameScores(newFrame);
+            game.Frames.Add(newFrame);
+
+            var updatedGame = await _repository.AddFrameAsync(game, newFrame);
+            if (updatedGame != null && updatedGame.CurrentFrameNumber == BowlingConstants.MaxFrames)
             {
-                last2Frame.Score = (BowlingConstants.MaxPins * 2) + newFrame.Roll1;
+                updatedGame = await _repository.UpdateGameScoreAsync(updatedGame);
             }
-
-            if (lastFrame != null)
-            {
-                if (lastFrame.IsStrike)
-                {
-                    lastFrame.Score = BowlingConstants.MaxPins + newFrame.Roll1 + (newFrame.Roll2 ?? 0);
-                }
-
-                if (lastFrame.IsSpare)
-                {
-                    lastFrame.Score = BowlingConstants.MaxPins + newFrame.Roll1;
-                }
-            }
+            return new TurnResult<BowlingGame, BowlingFrame>(true, State: updatedGame);
         }
     }
 }

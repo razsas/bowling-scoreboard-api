@@ -7,9 +7,10 @@ namespace bowlingApp.Controllers
 {
     [ApiController]
     [Route("api/bowling")]
-    public class BowlingGameController(IBowlingGameService gameService) : ControllerBase
+    public class BowlingGameController(IGameService<BowlingGame, BowlingFrame> gameService, LoggerService loggerService) : ControllerBase
     {
-        private readonly IBowlingGameService _gameService = gameService;
+        private readonly IGameService<BowlingGame, BowlingFrame> _gameService = gameService;
+        private readonly LoggerService _logService = loggerService;
 
         [HttpPost("start")]
         public async Task<IActionResult> StartNewGame([FromBody] StartGameRequest request)
@@ -21,14 +22,24 @@ namespace bowlingApp.Controllers
         [HttpPost("turn")]
         public async Task<IActionResult> PostTurn([FromBody] RollInput input)
         {
-            var result = await _gameService.AddFrameAsync(input);
+            //try
+            //{
+                var result = await _gameService.AddFrameAsync(input);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result);
-            }
+                if (!result.IsSuccess)
+                {
+                    await _logService.LogAsync("Warning", result.ErrorMessage ?? "Unknown error", input.GameId, input);
+                    return BadRequest(result);
+                }
 
-            return Ok(result);
+                return Ok(result);
+            //}
+            //catch (Exception ex)
+            //{
+            //    await _logService.LogErrorAsync(ex);
+            //    return StatusCode(500, "An unexpected error occurred.");
+
+            //}
         }
 
         [HttpGet("{gameId}")]

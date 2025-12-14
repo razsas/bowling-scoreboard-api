@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using bowlingApp.Data;
 
@@ -11,9 +12,11 @@ using bowlingApp.Data;
 namespace bowlingApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251203103031_AddAppLogTable")]
+    partial class AddAppLogTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace bowlingApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("bowlingApp.Models.BowlingFrame", b =>
+            modelBuilder.Entity("bowlingApp.Models.Frame", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,10 +55,10 @@ namespace bowlingApp.Migrations
 
                     b.HasIndex("GameId");
 
-                    b.ToTable("BowlingFrames");
+                    b.ToTable("Frames");
                 });
 
-            modelBuilder.Entity("bowlingApp.Models.BowlingGame", b =>
+            modelBuilder.Entity("bowlingApp.Models.Game", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -72,7 +75,7 @@ namespace bowlingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BowlingGames");
+                    b.ToTable("Games");
                 });
 
             modelBuilder.Entity("bowlingApp.Models.HighScore", b =>
@@ -106,22 +109,16 @@ namespace bowlingApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("FrameId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("GameId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("InputData")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("LogLevel")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Message")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StackTrace")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Timestamp")
@@ -129,36 +126,19 @@ namespace bowlingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FrameId");
-
-                    b.HasIndex("GameId");
-
                     b.ToTable("AppLogs");
                 });
 
-            modelBuilder.Entity("bowlingApp.Models.BowlingFrame", b =>
+            modelBuilder.Entity("bowlingApp.Models.Frame", b =>
                 {
-                    b.HasOne("bowlingApp.Models.BowlingGame", null)
+                    b.HasOne("bowlingApp.Models.Game", null)
                         .WithMany("Frames")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("bowlingApp.Models.Log", b =>
-                {
-                    b.HasOne("bowlingApp.Models.BowlingFrame", null)
-                        .WithMany()
-                        .HasForeignKey("FrameId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("bowlingApp.Models.BowlingGame", null)
-                        .WithMany()
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("bowlingApp.Models.BowlingGame", b =>
+            modelBuilder.Entity("bowlingApp.Models.Game", b =>
                 {
                     b.Navigation("Frames");
                 });
