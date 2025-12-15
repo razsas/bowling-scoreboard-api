@@ -6,6 +6,5 @@ namespace bowlingApp.Models
         public string Name { get; set; }
         public virtual List<TFrame> Frames { get; set; } = [];
         public int Score { get; set; }
-        public abstract void UpdatePreviousFrameScores(Frame newFrame);
     }
 }

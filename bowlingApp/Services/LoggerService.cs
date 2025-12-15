@@ -1,5 +1,6 @@
 ﻿using bowlingApp.Data;
 using bowlingApp.Models;
+using bowlingApp.Models.Dto;
 
 namespace bowlingApp.Services
 {

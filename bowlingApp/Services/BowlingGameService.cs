@@ -1,12 +1,13 @@
 ﻿using bowlingApp.Models;
 using bowlingApp.Repository;
 using bowlingApp.Constants;
+using bowlingApp.Models.Dto;
 
 namespace bowlingApp.Services
 {
-    public class BowlingGameService(IGameRepository<BowlingGame, BowlingFrame> repository) : IGameService<BowlingGame, BowlingFrame>
+    public class BowlingGameService(IGameRepository<BowlingGame, BowlingFrame, BowlingHighScore> repository) : IGameService<BowlingGame, BowlingFrame, BowlingHighScore>
     {
-        private readonly IGameRepository<BowlingGame, BowlingFrame> _repository = repository;
+        private readonly IGameRepository<BowlingGame, BowlingFrame, BowlingHighScore> _repository = repository;
         public Task<BowlingGame?> GetGameAsync(int gameId)
         {
             return _repository.GetGameAsync(gameId);
@@ -15,7 +16,7 @@ namespace bowlingApp.Services
         {
             return await _repository.CreateNewGameAsync(name);
         }
-        public async Task<List<HighScore>> GetHighScoresAsync()
+        public async Task<List<BowlingHighScore>> GetHighScoresAsync()
         {
             return await _repository.GetTopHighScoresAsync();
         }
@@ -31,7 +32,7 @@ namespace bowlingApp.Services
 
             var newFrame = new BowlingFrame(input, game.CurrentFrameNumber);
 
-            string? error = newFrame.ValidateRollInput();
+            string? error = newFrame.ValidateInput();
             if (error != null) return new TurnResult<BowlingGame, BowlingFrame>(false, error);
 
             game.UpdatePreviousFrameScores(newFrame);

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace bowlingApp.Repository
 {
-    public class BowlingRepository(ApplicationDbContext context) : IGameRepository<BowlingGame, BowlingFrame>
+    public class BowlingRepository(ApplicationDbContext context) : IGameRepository<BowlingGame, BowlingFrame, BowlingHighScore>
     {
         private readonly ApplicationDbContext _context = context;
 
@@ -35,20 +35,20 @@ namespace bowlingApp.Repository
             return await GetGameAsync(game.Id);
         }
 
-        public async Task<List<HighScore>> GetTopHighScoresAsync(int limit = 5)
+        public async Task<List<BowlingHighScore>> GetTopHighScoresAsync(int limit = 5)
         {
-            return await _context.HighScores
+            return await _context.BowlingHighScore
                 .OrderByDescending(h => h.Score)
                 .Take(limit)
                 .ToListAsync();
         }
 
-        public async Task AddHighScoreAsync(HighScore newScore, int limit = 5)
+        public async Task AddHighScoreAsync(BowlingHighScore newScore, int limit = 5)
         {
-            _context.HighScores.Add(newScore);
+            _context.BowlingHighScore.Add(newScore);
             await _context.SaveChangesAsync();
 
-            var allScores = await _context.HighScores
+            var allScores = await _context.BowlingHighScore
                 .OrderByDescending(h => h.Score)
                 .ThenBy(h => h.DateAchieved)
                 .ToListAsync();
@@ -56,7 +56,7 @@ namespace bowlingApp.Repository
             if (allScores.Count > limit)
             {
                 var scoresToRemove = allScores.Skip(limit).ToList();
-                _context.HighScores.RemoveRange(scoresToRemove);
+                _context.BowlingHighScore.RemoveRange(scoresToRemove);
                 await _context.SaveChangesAsync();
             }
         }
@@ -65,10 +65,11 @@ namespace bowlingApp.Repository
         {
             game.Score = game.Frames.Sum(f => f.Score);
             await _context.SaveChangesAsync();
-            HighScore newHighScore = new()
+            BowlingHighScore newHighScore = new()
             {
                 Score = game.Score,
-                Name = game.Name
+                Name = game.Name,
+                GameId = game.Id
             };
             await AddHighScoreAsync(newHighScore);
             return await GetGameAsync(game.Id);

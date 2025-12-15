@@ -7,6 +7,7 @@ namespace bowlingApp.Constants
         public const int MaxFrames = 10;
         public const int LastFrameIndex = 9;
         public const int DefaultHighScoreLimit = 5;
+        public const int UnsetRoll = -1;
         
         public static class ValidationMessages
         {

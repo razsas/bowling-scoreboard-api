@@ -12,7 +12,7 @@ namespace bowlingApp.Models
         public int CurrentFrameNumber => Frames.Count;
         public bool IsGameOver => CurrentFrameNumber == BowlingConstants.MaxFrames;
 
-        public override void UpdatePreviousFrameScores(Frame newFrame)
+        public void UpdatePreviousFrameScores(BowlingFrame newFrame)
         {
             if (newFrame.FrameIndex == 0) return;
 

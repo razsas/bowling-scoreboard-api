@@ -7,7 +7,10 @@ namespace bowlingApp.Data
     {
         public DbSet<BowlingGame> BowlingGames { get; set; }
         public DbSet<BowlingFrame> BowlingFrames { get; set; }
-        public DbSet<HighScore> HighScores { get; set; }
+        public DbSet<DartsGame> DartsGames { get; set; }
+        public DbSet<DartsFrame> DartsFrames { get; set; }
+        public DbSet<BowlingHighScore> BowlingHighScore { get; set; }
+        public DbSet<DartsHighScore> DartsHighScore { get; set; }
         public DbSet<Log> AppLogs { get; set; }
 
 
@@ -34,6 +37,21 @@ namespace bowlingApp.Data
 
             modelBuilder.Entity<Log>()
                 .HasKey(l => l.Id);
+                
+            modelBuilder.Entity<DartsFrame>()
+                .HasOne<DartsGame>()
+                .WithMany(g => g.Frames)
+                .HasForeignKey(f => f.GameId);
+
+            modelBuilder.Entity<BowlingGame>()
+                .HasOne<BowlingHighScore>()
+                .WithOne()
+                .HasForeignKey<BowlingHighScore>(hs => hs.GameId);
+
+            modelBuilder.Entity<DartsGame>()
+                .HasOne<DartsHighScore>()
+                .WithOne()
+                .HasForeignKey<DartsHighScore>(hs => hs.GameId);
         }
     }
 }

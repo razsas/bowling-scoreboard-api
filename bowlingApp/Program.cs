@@ -35,8 +35,10 @@ namespace bowlingApp
                     });
             });
 
-            builder.Services.AddScoped<IGameRepository<BowlingGame, BowlingFrame>, BowlingRepository>();
-            builder.Services.AddScoped<IGameService<BowlingGame, BowlingFrame>, BowlingGameService>();
+            builder.Services.AddScoped<IGameRepository<BowlingGame, BowlingFrame, BowlingHighScore>, BowlingRepository>();
+            builder.Services.AddScoped<IGameService<BowlingGame, BowlingFrame, BowlingHighScore>, BowlingGameService>();
+            builder.Services.AddScoped<IGameRepository<DartsGame, DartsFrame, DartsHighScore>, DartsRepository>();
+            builder.Services.AddScoped<IGameService<DartsGame, DartsFrame, DartsHighScore>, DartsService>();
             builder.Services.AddScoped<LoggerService>();
 
             var app = builder.Build();

@@ -7,9 +7,9 @@ namespace bowlingApp.Controllers
 {
     [ApiController]
     [Route("api/bowling")]
-    public class BowlingGameController(IGameService<BowlingGame, BowlingFrame> gameService, LoggerService loggerService) : ControllerBase
+    public class BowlingController(IGameService<BowlingGame, BowlingFrame, BowlingHighScore> gameService, LoggerService loggerService) : ControllerBase
     {
-        private readonly IGameService<BowlingGame, BowlingFrame> _gameService = gameService;
+        private readonly IGameService<BowlingGame, BowlingFrame, BowlingHighScore> _gameService = gameService;
         private readonly LoggerService _logService = loggerService;
 
         [HttpPost("start")]

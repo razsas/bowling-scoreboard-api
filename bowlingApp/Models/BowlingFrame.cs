@@ -1,4 +1,5 @@
 ﻿using bowlingApp.Constants;
+using bowlingApp.Models.Dto;
 
 namespace bowlingApp.Models
 {
@@ -9,7 +10,7 @@ namespace bowlingApp.Models
         {
             GameId = input.GameId;
             FrameIndex = frameIndex;
-            Roll1 = input.Roll1 ?? 0;
+            Roll1 = input.Roll1 ?? BowlingConstants.UnsetRoll;
             Roll2 = input.Roll2;
             Roll3 = input.Roll3;
             Score = Roll1 + (Roll2 ?? 0) + (Roll3 ?? 0);
@@ -19,7 +20,7 @@ namespace bowlingApp.Models
         public bool IsTenthFrame => FrameIndex == BowlingConstants.LastFrameIndex;
         public bool IsSpecialRoll => IsStrike || IsSpare;
 
-        public override string? ValidateRollInput()
+        public override string? ValidateInput()
         {
             var error = ValidatePinInput();
             if (error != null) return error;
@@ -32,7 +33,7 @@ namespace bowlingApp.Models
 
         private string? ValidatePinInput()
         {
-            if (Roll1 == 0)
+            if (Roll1 == BowlingConstants.UnsetRoll)
                 return BowlingConstants.ValidationMessages.Roll1Required;
 
             if (IsInvalidPinCount(Roll1) || IsInvalidPinCount(Roll2) || IsInvalidPinCount(Roll3))
