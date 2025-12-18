@@ -1,7 +1,6 @@
 using bowlingApp.Data;
 using bowlingApp.Models;
 using Microsoft.EntityFrameworkCore;
-using bowlingApp.Constants;
 
 namespace bowlingApp.Repository
 {

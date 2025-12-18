@@ -1,11 +1,14 @@
 # Bowling Scoreboard API
 
-A RESTful API for managing bowling games, calculating scores, and tracking high scores. Built with ASP.NET Core 8 and Entity Framework Core
+A RESTful API for managing bowling and darts (501) games, calculating scores, and tracking high scores. Built with ASP.NET Core 8 and Entity Framework Core
 
 ## 🎯 Features
 
 - ✅ Create and manage bowling games
 - ✅ Process bowling rolls with comprehensive validation
+- ✅ Support for Darts 501 game logic
+- ✅ Dynamic score calculation (501 countdown)
+- ✅ Bust rule implementation
 - ✅ Automatic strike and spare score calculation
 - ✅ Bonus roll handling (10th frame)
 - ✅ High score tracking with automatic top 5 management
@@ -65,28 +68,35 @@ Navigate to: `https://localhost:7151/swagger`
 ```
 bowlingApp/
 ├── Constants/
-│   └── BowlingConstants.cs          # Game rules constants and validation messages
+│   ├── BowlingConstants.cs          # Bowling rules constants
+│   └── DartsConstants.cs            # Darts rules and validation messages
 ├── Controllers/
-│   └── BowlingGameController.cs     # API endpoints
+│   ├── BowlingGameController.cs     # Bowling API endpoints
+│   └── DartsController.cs           # Darts API endpoints
 ├── Data/
 │   └── ApplicationDbContext.cs      # EF Core DbContext
 ├── Migrations/                      # EF Core migrations
 ├── Models/
 │   ├── Dto/
-│   │   └── StartGameRequest.cs      # Data Transfer Objects
-│   ├── Frame.cs                     # Frame entity
-│   ├── Game.cs                      # Game entity
+│   │   ├── StartGameRequest.cs    # Data Transfer Objects
+│   │   ├── RollInput.cs           # Roll input model
+│   │   └── TurnResult.cs          # Turn result response
+│   ├── BowlingFrame.cs              # Bowling Frame entity
+│   ├── BowlingGame.cs               # Bowling Game entity
+│   ├── DartsFrame.cs                # Darts Frame entity
+│   ├── DartsGame.cs                 # Darts Game entity
+│   ├── Frame.cs                     # Base Frame entity
+│   ├── Game.cs                      # Base Game entity
 │   ├── HighScore.cs                 # HighScore entity
-│   ├── RollInput.cs                 # Roll input model
-│   └── TurnResult.cs                # Turn result response
 ├── Repository/
-│   ├── IBowlingRepository.cs        # Repository interface
-│   └── BowlingRepository.cs         # Data access implementation
+│   ├── IGameRepository.cs           # Generic Repository interface
+│   ├── BowlingRepository.cs         # Bowling data access
+│   └── DartsRepository.cs           # Darts data access
 ├── Services/
-│   ├── IBowlingGameService.cs       # Business logic interface
-│   ├── BowlingGameService.cs        # Core game logic
-│   ├── IBowlingValidationService.cs # Validation interface
-│   └── BowlingValidationService.cs  # Input validation logic
+│   ├── IGameService.cs              # Generic Service interface
+│   ├── BowlingGameService.cs        # Bowling game logic
+│   ├── DartsService.cs              # Darts game logic
+│   └── LoggerService.cs             # Logging service
 └── Program.cs                       # Application startup
 
 ```
@@ -187,6 +197,41 @@ GET /api/bowling/highscores
 ```
 
 **Response:**
+```
+
+### Darts 501 Endpoints
+
+#### Start New Darts Game
+```http
+POST /api/darts/start
+Content-Type: application/json
+
+{
+  "gameName": "Player Name"
+}
+```
+
+#### Submit Darts Turn
+```http
+POST /api/darts/turn
+Content-Type: application/json
+
+{
+  "gameId": 1,
+  "roll1": 60,
+  "roll2": 60,
+  "roll3": 60
+}
+```
+
+#### Get Darts Game
+```http
+GET /api/darts/{gameId}
+```
+
+#### Get Darts High Scores
+```http
+GET /api/darts/highscores
 ```json
 [
   {
@@ -226,6 +271,24 @@ GET /api/bowling/highscores
    - Regular Frame: Both Roll1 and Roll2 required
    - 10th Frame: Roll3 required only if strike or spare
 
+## 🎯 Darts 501 Rules Implemented
+
+### Game Flow
+- **Start Score**: 501
+- **Goal**: Reach exactly 0
+- **Turns**: 3 throws per turn
+
+### Scoring Rules
+- **Score Calculation**: 501 - Sum of throws
+- **Max Throw**: 60 (Triple 20)
+- **Min Throw**: 0 (Miss)
+
+### Validation & Bust Rules
+- **Throw Validation**: Each throw must be 0-60
+- **Bust**: If score goes below 0
+- **Bust**: If score reaches 1 (cannot double out)
+- **Win**: Score reaches exactly 0
+
 ## 🗃️ Database Schema
 
 ### Games Table
@@ -242,11 +305,33 @@ GET /api/bowling/highscores
 - `Roll3` (int, nullable)
 - `Score` (int)
 
-### HighScores Table
+### BowlingHighScores Table
 - `Id` (int, PK)
 - `Name` (string, max 50)
 - `Score` (int)
 - `DateAchieved` (DateTime)
+- `GameId` (int, FK)
+
+### DartsHighScores Table
+- `Id` (int, PK)
+- `Name` (string, max 50)
+- `DartsCount` (int) - Number of darts thrown (lower is better)
+- `DateAchieved` (DateTime)
+- `GameId` (int, FK)
+
+### DartsGames Table
+- `Id` (int, PK)
+- `Name` (string)
+- `Score` (int) - Current descending score (starts at 501)
+
+### DartsFrames Table
+- `Id` (int, PK)
+- `GameId` (int, FK)
+- `FrameIndex` (int)
+- `Roll1` (int)
+- `Roll2` (int, nullable)
+- `Roll3` (int, nullable)
+- `Score` (int) - Points scored in this turn
 
 ## 🔧 Configuration
 

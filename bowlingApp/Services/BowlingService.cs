@@ -5,7 +5,7 @@ using bowlingApp.Models.Dto;
 
 namespace bowlingApp.Services
 {
-    public class BowlingGameService(IGameRepository<BowlingGame, BowlingFrame, BowlingHighScore> repository) : IGameService<BowlingGame, BowlingFrame, BowlingHighScore>
+    public class BowlingService(IGameRepository<BowlingGame, BowlingFrame, BowlingHighScore> repository) : IGameService<BowlingGame, BowlingFrame, BowlingHighScore>
     {
         private readonly IGameRepository<BowlingGame, BowlingFrame, BowlingHighScore> _repository = repository;
         public Task<BowlingGame?> GetGameAsync(int gameId)
