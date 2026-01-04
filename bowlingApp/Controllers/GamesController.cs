@@ -16,10 +16,10 @@ namespace bowlingApp.Controllers
         protected readonly IGameService<TGame, TFrame, THighScore> _gameService = gameService;
         protected readonly LoggerService _logService = loggerService;
 
-        [HttpPost("start")]
-        public virtual async Task<IActionResult> StartNewGame([FromBody] StartGameRequest request)
+        [HttpGet("start/{name}")]
+        public virtual async Task<IActionResult> StartNewGame(string name)
         {
-            var game = await _gameService.StartNewGameAsync(request.GameName);
+            var game = await _gameService.StartNewGameAsync(name);
             return CreatedAtAction(nameof(GetGame), new { gameId = game.Id }, game);
         }
 
