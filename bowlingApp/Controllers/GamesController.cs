@@ -1,10 +1,12 @@
 ﻿using bowlingApp.Models;
 using bowlingApp.Models.Dto;
 using bowlingApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bowlingApp.Controllers
 {
+    //[Authorize]
     [ApiController]
     public abstract class GameController<TGame, TFrame, THighScore>(
     IGameService<TGame, TFrame, THighScore> gameService,

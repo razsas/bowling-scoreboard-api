@@ -12,6 +12,7 @@ namespace bowlingApp.Data
         public DbSet<BowlingHighScore> BowlingHighScore { get; set; }
         public DbSet<DartsHighScore> DartsHighScore { get; set; }
         public DbSet<Log> AppLogs { get; set; }
+        public DbSet<User> Users { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

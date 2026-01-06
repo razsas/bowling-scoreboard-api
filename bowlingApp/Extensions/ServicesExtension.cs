@@ -18,6 +18,7 @@ namespace bowlingApp.Extensions
 
             // --- Shared Services ---
             services.AddScoped<LoggerService>();
+            services.AddScoped<ITokenService, TokenService>();
 
             return services;
         }
