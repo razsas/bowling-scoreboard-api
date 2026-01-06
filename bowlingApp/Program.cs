@@ -2,7 +2,6 @@
 using bowlingApp.Data;
 using bowlingApp.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
 
 namespace bowlingApp
 {
