@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace bowlingApp.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     public abstract class GameController<TGame, TFrame, THighScore>(
     IGameService<TGame, TFrame, THighScore> gameService,

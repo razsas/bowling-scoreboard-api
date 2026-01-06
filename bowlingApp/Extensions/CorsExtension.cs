@@ -28,6 +28,8 @@ namespace bowlingApp.Extensions
                             policy.AllowAnyHeader();
                         else
                             policy.WithHeaders([.. settings.AllowedHeaders]);
+                        
+                        policy.AllowCredentials();
                     });
                 });
             }

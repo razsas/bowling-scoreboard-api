@@ -28,10 +28,11 @@ namespace bowlingApp.Controllers
             context.Users.Add(user);
             await context.SaveChangesAsync();
 
+            SetTokenCookie(token);
+
             return new UserDto
             {
-                Username = user.Username,
-                Token = token
+                Username = user.Username
             };
         }
 
@@ -47,16 +48,29 @@ namespace bowlingApp.Controllers
             var token = tokenService.CreateToken(user);
             if (token == null) return Problem("Token generation failed.", statusCode: 500);
 
+            SetTokenCookie(token);
+
             return new UserDto
             {
-                Username = user.Username,
-                Token = token
+                Username = user.Username
             };
         }
 
         private async Task<bool> UserExists(string username)
         {
             return await context.Users.AnyAsync(x => x.Username.ToLower() == username.ToLower());
+        }
+
+        private void SetTokenCookie(string token)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7),
+                SameSite = SameSiteMode.None,
+                Secure = true 
+            };
+            Response.Cookies.Append("jwt", token, cookieOptions);
         }
     }
 }

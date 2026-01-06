@@ -23,6 +23,19 @@ namespace bowlingApp.Extensions
                             ValidateAudience = true,
                             ValidAudience = config["Audience"]
                         };
+
+                        options.Events = new JwtBearerEvents
+                        {
+                            OnMessageReceived = context =>
+                            {
+                                var accessToken = context.Request.Cookies["jwt"];
+                                if (!string.IsNullOrEmpty(accessToken))
+                                {
+                                    context.Token = accessToken;
+                                }
+                                return Task.CompletedTask;
+                            }
+                        };
                     }
                 });
             return services;
