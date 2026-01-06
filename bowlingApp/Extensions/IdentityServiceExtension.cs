@@ -11,16 +11,19 @@ namespace bowlingApp.Extensions
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    var tokenKey = config["TokenKey"] ?? throw new Exception("TokenKey not found");
-                    options.TokenValidationParameters = new TokenValidationParameters
+                    var tokenKey = config["TokenKey"];
+                    if (!string.IsNullOrEmpty(tokenKey))
                     {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
-                        ValidateIssuer = true,
-                        ValidIssuer = config["Issuer"],
-                        ValidateAudience = true,
-                        ValidAudience = config["Audience"]
-                    };
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
+                            ValidateIssuer = true,
+                            ValidIssuer = config["Issuer"],
+                            ValidateAudience = true,
+                            ValidAudience = config["Audience"]
+                        };
+                    }
                 });
             return services;
         }

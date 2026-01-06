@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using bowlingApp.Data;
 using bowlingApp.Models;
 using bowlingApp.Models.Dto;
@@ -24,13 +22,16 @@ namespace bowlingApp.Controllers
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password)
             };
 
+            var token = tokenService.CreateToken(user);
+            if (token == null) return Problem("Token generation failed.", statusCode: 500);
+
             context.Users.Add(user);
             await context.SaveChangesAsync();
 
             return new UserDto
             {
                 Username = user.Username,
-                Token = tokenService.CreateToken(user)
+                Token = token
             };
         }
 
@@ -43,10 +44,13 @@ namespace bowlingApp.Controllers
 
             if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash)) return Unauthorized("Invalid password");
 
+            var token = tokenService.CreateToken(user);
+            if (token == null) return Problem("Token generation failed.", statusCode: 500);
+
             return new UserDto
             {
                 Username = user.Username,
-                Token = tokenService.CreateToken(user)
+                Token = token
             };
         }
 

@@ -8,10 +8,10 @@ namespace bowlingApp.Services
 {
     public class TokenService(IConfiguration config) : ITokenService
     {
-        public string CreateToken(User user)
+        public string? CreateToken(User user)
         {
-            var tokenKey = config["TokenKey"] ?? throw new Exception("Cannot access TokenKey from appsettings");
-            if (tokenKey.Length < 64) throw new Exception("Your TokenKey needs to be longer");
+            var tokenKey = config["TokenKey"] ?? "";
+            if (tokenKey.Length < 64) return null;
             
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
             
